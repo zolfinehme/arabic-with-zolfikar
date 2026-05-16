@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arabic Trial Class — Zolfikar</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg:     #0f0e17;
+  --surface:#1a1828;
+  --card:   #232136;
+  --green:  #00e58a;
+  --yellow: #ffd93d;
+  --red:    #ff6b6b;
+  --blue:   #4cc9f0;
+  --purple: #c77dff;
+  --orange: #ff9f43;
+  --text:   #fffffe;
+  --muted:  #a7a9be;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Baloo 2', cursive;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+.sticky-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(15,14,23,0.88);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 12px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-logo { font-size: 17px; font-weight: 800; color: var(--text); }
+.nav-logo span { color: var(--green); }
+.nav-dots { display: flex; gap: 10px; align-items: center; }
+.nav-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--card);
+  border: 2px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s, border-color 0.3s;
+}
+.nav-dot.active { background: var(--green); border-color: var(--green); transform: scale(1.4); }
+.nav-dot:hover  { background: var(--green); border-color: var(--green); }
+
+/* ── SECTIONS ── */
+section {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 24px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.section-tag {
+  font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 3px;
+  color: var(--green); margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-tag::before, .section-tag::after {
+  content:''; width: 28px; height: 2px;
+  background: var(--green); border-radius: 2px;
+}
+
+.section-h2 {
+  font-size: clamp(30px, 6vw, 56px);
+  font-weight: 800; text-align: center;
+  margin-bottom: 10px; color: var(--text);
+}
+.section-sub {
+  color: var(--muted); font-size: 16px;
+  text-align: center; margin-bottom: 44px;
+  max-width: 480px; line-height: 1.7;
+}
+
+/* ── COVER ── */
+#cover {
+  background:
+    radial-gradient(ellipse at 20% 20%, #1e1b4b 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 80%, #0d2b1e 0%, transparent 50%),
+    var(--bg);
+  text-align: center; gap: 18px;
+}
+.cover-bg-letter {
+  position: absolute;
+  font-family: 'Tajawal', sans-serif;
+  font-size: clamp(220px, 38vw, 460px);
+  color: rgba(255,255,255,0.025);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none; user-select: none; line-height: 1;
+}
+.cover-eyebrow {
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 4px; text-transform: uppercase; color: var(--green);
+  opacity: 0; animation: fadeUp 0.6s ease forwards 0.2s;
+}
+.cover-title {
+  font-size: clamp(44px, 10vw, 96px);
+  font-weight: 800; line-height: 1; color: var(--text);
+  opacity: 0; animation: fadeUp 0.6s ease forwards 0.4s;
+}
+.cover-title em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--green), var(--blue));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; display: block;
+}
+.cover-arabic {
+  font-family: 'Tajawal', sans-serif;
+  font-size: clamp(20px, 5vw, 38px);
+  color: rgba(255,255,255,0.35); direction: rtl; letter-spacing: 6px;
+  opacity: 0; animation: fadeUp 0.6s ease forwards 0.5s;
+}
+.cover-chips {
+  display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+  opacity: 0; animation: fadeUp 0.6s ease forwards 0.7s;
+}
+.cover-chip {
+  background: var(--card);
+  border: 2px solid rgba(255,255,255,0.08);
+  color: var(--muted); font-size: 14px; font-weight: 700;
+  padding: 10px 20px; border-radius: 50px;
+  display: flex; align-items: center; gap: 8px;
+}
+.cover-chip span { color: var(--text); }
+
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(24px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+/* ── FACTS ── */
+#facts {
+  background:
+    radial-gradient(ellipse at 70% 10%, #0d2b1e 0%, transparent 50%),
+    var(--bg);
+}
+.facts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px; max-width: 960px; width: 100%; margin-top: 8px;
+}
+.fact-card {
+  background: var(--card);
+  border: 2px solid rgba(255,255,255,0.06);
+  border-radius: 20px; padding: 28px 24px;
+  display: flex; flex-direction: column; gap: 8px;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.fact-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(0,229,138,0.3);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+}
+.fact-top { display: flex; align-items: center; justify-content: space-between; }
+.fact-emoji { font-size: 28px; }
+.fact-number {
+  font-size: clamp(34px, 4.5vw, 48px);
+  font-weight: 800; line-height: 1;
+  color: var(--green); font-family: 'Baloo 2', cursive;
+}
+.fact-card.c-yellow .fact-number { color: var(--yellow); }
+.fact-card.c-blue   .fact-number { color: var(--blue);   }
+.fact-card.c-red    .fact-number { color: var(--red);     }
+.fact-card.c-purple .fact-number { color: var(--purple);  }
+.fact-card.c-orange .fact-number { color: var(--orange);  }
+.fact-label { font-size: 16px; font-weight: 800; color: var(--text); }
+.fact-desc  { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+.countries-strip {
+  max-width: 960px; width: 100%;
+  background: var(--card);
+  border: 2px solid rgba(255,255,255,0.06);
+  border-radius: 20px; padding: 24px 28px;
+  margin-top: 16px;
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start;
+}
+.countries-label {
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--green); width: 100%; margin-bottom: 4px;
+}
+.country-tag {
+  font-size: 13px; font-weight: 700;
+  background: rgba(0,229,138,0.08);
+  border: 1px solid rgba(0,229,138,0.2);
+  color: rgba(255,255,255,0.75);
+  padding: 5px 12px; border-radius: 50px;
+}
+
+/* ── INTERVIEW ── */
+#interview {
+  background:
+    radial-gradient(ellipse at 20% 80%, #1e1b4b 0%, transparent 50%),
+    var(--bg);
+}
+.questions-list {
+  max-width: 700px; width: 100%;
+  display: flex; flex-direction: column; gap: 0;
+}
+.q-item {
+  display: flex; align-items: flex-start; gap: 20px;
+  padding: 24px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  transition: padding-left 0.2s;
+}
+.q-item:hover { padding-left: 6px; }
+.q-item:last-child { border-bottom: none; }
+.q-num {
+  font-size: 13px; font-weight: 800; color: var(--green);
+  min-width: 32px; padding-top: 4px; letter-spacing: 1px;
+}
+.q-content h3 { font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 5px; }
+.q-content p  { font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+.note-box {
+  max-width: 700px; width: 100%;
+  background: rgba(0,229,138,0.07);
+  border: 1px solid rgba(0,229,138,0.25);
+  border-left: 4px solid var(--green);
+  border-radius: 0 12px 12px 0;
+  padding: 18px 22px; margin-top: 28px;
+  font-size: 14px; color: var(--muted); line-height: 1.8;
+}
+.note-box strong { color: var(--green); }
+
+/* ── JOURNEY ── */
+#journey {
+  background:
+    radial-gradient(ellipse at 80% 20%, #0d2b1e 0%, transparent 50%),
+    var(--bg);
+}
+.journey-steps {
+  max-width: 820px; width: 100%;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.journey-step {
+  background: var(--card);
+  border: 2px solid rgba(255,255,255,0.06);
+  border-radius: 16px; padding: 24px 28px;
+  display: flex; align-items: center; gap: 20px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.journey-step:hover { border-color: rgba(0,229,138,0.3); transform: translateX(4px); }
+.step-num {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 800; flex-shrink: 0; color: #0f0e17;
+}
+.sn1{background:var(--green);}
+.sn2{background:var(--yellow);}
+.sn3{background:var(--blue);}
+.sn4{background:var(--purple);}
+.sn5{background:var(--orange);}
+.step-body { flex: 1; }
+.step-body h3 { font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+.step-body p  { font-size: 14px; color: var(--muted); line-height: 1.6; }
+.step-badge {
+  font-size: 12px; font-weight: 700;
+  padding: 6px 14px; border-radius: 50px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.sb1{background:rgba(0,229,138,0.12);  color:var(--green);  border:1px solid rgba(0,229,138,0.3);}
+.sb2{background:rgba(255,217,61,0.12); color:var(--yellow); border:1px solid rgba(255,217,61,0.3);}
+.sb3{background:rgba(76,201,240,0.12); color:var(--blue);   border:1px solid rgba(76,201,240,0.3);}
+.sb4{background:rgba(199,125,255,0.12);color:var(--purple); border:1px solid rgba(199,125,255,0.3);}
+.sb5{background:rgba(255,159,67,0.12); color:var(--orange); border:1px solid rgba(255,159,67,0.3);}
+
+/* ── DEMO ── */
+#demo {
+  background:
+    radial-gradient(ellipse at 50% 30%, #0d2b1e 0%, transparent 60%),
+    var(--bg);
+  text-align: center; gap: 20px;
+}
+.demo-title { font-size: clamp(38px, 8vw, 76px); font-weight: 800; color: var(--text); line-height: 1; }
+.demo-title em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--green), var(--blue));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; display: block;
+}
+.demo-chips { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+.demo-chip {
+  background: var(--card);
+  border: 2px solid rgba(255,255,255,0.08);
+  color: var(--text); font-size: 15px; font-weight: 700;
+  padding: 12px 22px; border-radius: 50px;
+  display: flex; align-items: center; gap: 8px;
+}
+.demo-btn {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: linear-gradient(135deg, var(--green), #00b368);
+  color: #0f0e17; font-size: 20px; font-weight: 800;
+  padding: 18px 52px; border-radius: 50px;
+  text-decoration: none; border: none; cursor: pointer;
+  box-shadow: 0 8px 32px rgba(0,229,138,0.35);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.demo-btn:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 16px 44px rgba(0,229,138,0.5); }
+.demo-btn .arrow { font-size: 22px; transition: transform 0.2s; }
+.demo-btn:hover .arrow { transform: translateX(5px); }
+.demo-note { font-size: 13px; color: var(--muted); }
+
+/* ── CLOSING ── */
+#closing {
+  background:
+    radial-gradient(ellipse at 30% 70%, #1e1b4b 0%, transparent 55%),
+    var(--bg);
+  text-align: center; gap: 20px;
+}
+.closing-arabic {
+  font-family: 'Tajawal', sans-serif;
+  font-size: clamp(56px, 12vw, 110px); line-height: 1;
+  background: linear-gradient(135deg, var(--yellow), var(--orange));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 40px rgba(255,217,61,0.25));
+}
+.closing-title { font-size: clamp(32px, 6vw, 60px); font-weight: 800; color: var(--text); line-height: 1.05; }
+.closing-title span { color: var(--green); }
+.closing-sub { color: var(--muted); font-size: 16px; max-width: 460px; line-height: 1.8; }
+
+.next-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px; max-width: 720px; width: 100%;
+}
+.next-step {
+  background: var(--card);
+  border: 2px solid rgba(255,255,255,0.06);
+  border-radius: 18px; padding: 28px 20px; text-align: center;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.next-step:hover { border-color: rgba(0,229,138,0.3); transform: translateY(-4px); }
+.next-step .ns-icon { font-size: 34px; margin-bottom: 12px; display: block; }
+.next-step h4 { font-size: 15px; font-weight: 800; color: var(--green); margin-bottom: 6px; }
+.next-step p  { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+.preply-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, var(--yellow), var(--orange));
+  color: #0f0e17; font-size: 20px; font-weight: 800;
+  padding: 18px 52px; border-radius: 50px;
+  text-decoration: none; border: none; cursor: pointer;
+  box-shadow: 0 8px 32px rgba(255,217,61,0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.preply-btn:hover { transform: translateY(-4px) scale(1.03); box-shadow: 0 16px 44px rgba(255,217,61,0.45); }
+
+.closing-footer { font-size: 12px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+.closing-footer span { color: var(--green); }
+
+/* ── REVEAL ── */
+.reveal {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+.reveal.visible { opacity:1; transform: translateY(0); }
+
+@media (max-width:580px) {
+  .journey-step { flex-wrap: wrap; }
+  .step-badge { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="sticky-nav">
+  <div class="nav-logo">Arabic with <span>Zolfikar</span></div>
+  <div class="nav-dots">
+    <div class="nav-dot active" onclick="goTo('cover')"     title="Cover"></div>
+    <div class="nav-dot"        onclick="goTo('facts')"     title="Facts"></div>
+    <div class="nav-dot"        onclick="goTo('interview')" title="Interview"></div>
+    <div class="nav-dot"        onclick="goTo('journey')"   title="Journey"></div>
+    <div class="nav-dot"        onclick="goTo('demo')"      title="Demo"></div>
+    <div class="nav-dot"        onclick="goTo('closing')"   title="Closing"></div>
+  </div>
+</nav>
+
+<!-- ══ COVER ══ -->
+<section id="cover">
+  <div class="cover-bg-letter">ع</div>
+  <div class="cover-eyebrow">Trial Class · Welcome</div>
+  <h1 class="cover-title">Your Arabic<br><em>Journey Starts Today</em></h1>
+  <div class="cover-arabic">أهلاً وسهلاً</div>
+  <div class="cover-chips">
+    <div class="cover-chip">👨‍🏫 Tutor: <span>Zolfikar</span></div>
+    <div class="cover-chip">⏱ Duration: <span>25–50 min</span></div>
+    <div class="cover-chip">🇱🇧 <span>Lebanese Tutor</span></div>
+
+  </div>
+</section>
+
+<!-- ══ FACTS ══ -->
+<section id="facts">
+  <div class="section-tag reveal">Why Arabic?</div>
+  <h2 class="section-h2 reveal">Arabic by the Numbers</h2>
+  <p class="section-sub reveal">Here's why learning Arabic is one of the best decisions you can make</p>
+
+  <div class="facts-grid reveal">
+    <div class="fact-card">
+      <div class="fact-top"><div class="fact-number">22</div><div class="fact-emoji">🌍</div></div>
+      <div class="fact-label">Countries</div>
+      <div class="fact-desc">Arabic is the official language in 22 countries spanning the Middle East and North Africa — from Morocco to Oman.</div>
+    </div>
+    <div class="fact-card c-yellow">
+      <div class="fact-top"><div class="fact-number">400M+</div><div class="fact-emoji">👥</div></div>
+      <div class="fact-label">Native Speakers</div>
+      <div class="fact-desc">Over 400 million people speak Arabic natively, making it the 5th most spoken language in the world.</div>
+    </div>
+    <div class="fact-card c-blue">
+      <div class="fact-top"><div class="fact-number">1,500+</div><div class="fact-emoji">📜</div></div>
+      <div class="fact-label">Years of History</div>
+      <div class="fact-desc">One of the oldest living languages with a rich literary and scientific tradition stretching back centuries.</div>
+    </div>
+    <div class="fact-card c-red">
+      <div class="fact-top"><div class="fact-number">Top 6</div><div class="fact-emoji">🌐</div></div>
+      <div class="fact-label">UN Official Language</div>
+      <div class="fact-desc">Arabic is one of only 6 official languages of the United Nations — a language of global diplomacy.</div>
+    </div>
+    <div class="fact-card c-purple">
+      <div class="fact-top"><div class="fact-number">#1</div><div class="fact-emoji">💼</div></div>
+      <div class="fact-label">Career Advantage</div>
+      <div class="fact-desc">Arabic speakers are in high demand in business, diplomacy, journalism, and international development worldwide.</div>
+    </div>
+    <div class="fact-card c-orange">
+      <div class="fact-top"><div class="fact-number">3×</div><div class="fact-emoji">🧠</div></div>
+      <div class="fact-label">Brain Boost</div>
+      <div class="fact-desc">Learning a right-to-left script like Arabic significantly improves memory, focus, and cognitive flexibility.</div>
+    </div>
+  </div>
+
+  <div class="countries-strip reveal">
+    <div class="countries-label">🗺 22 Arabic-speaking countries</div>
+    <div class="country-tag">🇸🇦 Saudi Arabia</div><div class="country-tag">🇱🇧 Lebanon</div>
+    <div class="country-tag">🇪🇬 Egypt</div><div class="country-tag">🇦🇪 UAE</div>
+    <div class="country-tag">🇯🇴 Jordan</div><div class="country-tag">🇸🇾 Syria</div>
+    <div class="country-tag">🇮🇶 Iraq</div><div class="country-tag">🇲🇦 Morocco</div>
+    <div class="country-tag">🇹🇳 Tunisia</div><div class="country-tag">🇩🇿 Algeria</div>
+    <div class="country-tag">🇱🇾 Libya</div><div class="country-tag">🇸🇩 Sudan</div>
+    <div class="country-tag">🇾🇪 Yemen</div><div class="country-tag">🇴🇲 Oman</div>
+    <div class="country-tag">🇶🇦 Qatar</div><div class="country-tag">🇰🇼 Kuwait</div>
+    <div class="country-tag">🇧🇭 Bahrain</div><div class="country-tag">🇲🇷 Mauritania</div>
+    <div class="country-tag">🇸🇴 Somalia</div><div class="country-tag">🇩🇯 Djibouti</div>
+    <div class="country-tag">🇨🇲 Comoros</div><div class="country-tag">🇵🇸 Palestine</div>
+  </div>
+</section>
+
+<!-- ══ INTERVIEW ══ -->
+<section id="interview">
+  <div class="section-tag reveal">Getting to Know You</div>
+  <h2 class="section-h2 reveal">Let's talk about <span style="color:var(--green)">you</span></h2>
+  <p class="section-sub reveal">Before we dive in, I want to understand where you're coming from and where you want to go.</p>
+
+  <div class="questions-list">
+    <div class="q-item reveal">
+      <div class="q-num">01</div>
+      <div class="q-content">
+        <h3>Why do you want to learn Arabic?</h3>
+        <p>Travel, religion, culture, business, connecting with family or friends? Your "why" shapes everything we do.</p>
+      </div>
+    </div>
+    <div class="q-item reveal">
+      <div class="q-num">02</div>
+      <div class="q-content">
+        <h3>Have you tried learning Arabic before?</h3>
+        <p>Any apps, classes, or self-study? Even if it didn't work out, knowing what you've tried helps me teach better.</p>
+      </div>
+    </div>
+    <div class="q-item reveal">
+      <div class="q-num">03</div>
+      <div class="q-content">
+        <h3>What's your end goal?</h3>
+        <p>Basic conversation, reading the Quran, travel, or full fluency? Let's set a real target together.</p>
+      </div>
+    </div>
+    <div class="q-item reveal">
+      <div class="q-num">04</div>
+      <div class="q-content">
+        <h3>How many hours per week can you study?</h3>
+        <p>Consistency beats intensity. Even 30 minutes a day makes a huge difference — I'll build a plan around your schedule.</p>
+      </div>
+    </div>
+    <div class="q-item reveal">
+      <div class="q-num">05</div>
+      <div class="q-content">
+        <h3>Do you prefer structure or conversation?</h3>
+        <p>Some people love grammar rules and writing. Others want to speak from day one. Most enjoy a mix — what sounds like you?</p>
+      </div>
+    </div>
+    <div class="q-item reveal">
+      <div class="q-num">06</div>
+      <div class="q-content">
+        <h3>What languages do you already speak?</h3>
+        <p>Knowing your language background helps me draw useful comparisons and make Arabic click faster for you.</p>
+      </div>
+    </div>
+  </div>
+
+
+</section>
+
+<!-- ══ JOURNEY ══ -->
+<section id="journey">
+  <div class="section-tag reveal">The Curriculum</div>
+  <h2 class="section-h2 reveal">Your Learning Roadmap</h2>
+  <p class="section-sub reveal">Based on the Al-Madinah curriculum — structured, proven, and fun</p>
+
+  <div class="journey-steps">
+    <div class="journey-step reveal">
+      <div class="step-num sn1">1</div>
+      <div class="step-body">
+        <h3>The Arabic Alphabet</h3>
+        <p>All 28 letters — shapes, sounds, and how they connect. Right to left from day one, with games to make it stick.</p>
+      </div>
+      <div class="step-badge sb1">🔤 Foundation</div>
+    </div>
+    <div class="journey-step reveal">
+      <div class="step-num sn2">2</div>
+      <div class="step-body">
+        <h3>Core Vocabulary & Greetings</h3>
+        <p>Essential everyday words — greetings, numbers, colours, family. You'll use real Arabic from lesson two.</p>
+      </div>
+      <div class="step-badge sb2">💬 Speaking</div>
+    </div>
+    <div class="journey-step reveal">
+      <div class="step-num sn3">3</div>
+      <div class="step-body">
+        <h3>Building Simple Sentences</h3>
+        <p>Combining words with basic grammar. Subject, verb, object — Arabic sentence structure made simple and logical.</p>
+      </div>
+      <div class="step-badge sb3">✍️ Grammar</div>
+    </div>
+    <div class="journey-step reveal">
+      <div class="step-num sn4">4</div>
+      <div class="step-body">
+        <h3>Interactive Exercises & Games</h3>
+        <p>Every lesson includes hands-on activities — flashcards, matching games, quizzes. Learning that actually feels fun.</p>
+      </div>
+      <div class="step-badge sb4">🎮 Practice</div>
+    </div>
+    <div class="journey-step reveal">
+      <div class="step-num sn5">5</div>
+      <div class="step-body">
+        <h3>Real Conversations</h3>
+        <p>Roleplay scenarios — at a restaurant, on a trip, meeting someone new. This is where everything comes alive.</p>
+      </div>
+      <div class="step-badge sb5">🗣 Fluency</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DEMO ══ -->
+<section id="demo">
+  <div class="section-tag reveal">Live Exercise</div>
+  <h2 class="demo-title reveal">Now let's<br><em>try it live!</em></h2>
+  <p class="section-sub reveal">Two real exercises — just like every lesson. Click below to launch!</p>
+
+  <div class="demo-chips reveal">
+    <div class="demo-chip">📖 Alphabet Recognition</div>
+    <div class="demo-chip">🔗 Word Matching Game</div>
+  </div>
+
+  <a href="zolfikar-trial-demo.html" target="_blank" class="demo-btn reveal">
+    Let's Take a Demo Class <span class="arrow">→</span>
+  </a>
+  <p class="demo-note reveal">Opens in a new tab — share your screen so the student can play along!</p>
+</section>
+
+<!-- ══ CLOSING ══ -->
+<section id="closing">
+  <div class="closing-arabic reveal">شكراً</div>
+  <h2 class="closing-title reveal">Ready to make<br><span>this official?</span></h2>
+  <p class="closing-sub reveal">You just got a real taste of what learning Arabic with Zolfikar looks like. Here's what comes next!</p>
+
+  <div class="next-steps reveal">
+    <div class="next-step">
+      <span class="ns-icon">📅</span>
+      <h4>Book Your First Lesson</h4>
+      <p>Pick a time on Preply — lessons available 7 days a week, flexible hours.</p>
+    </div>
+    <div class="next-step">
+      <span class="ns-icon">📚</span>
+      <h4>Start the Alphabet</h4>
+      <p>Lesson one dives straight into the 28 Arabic letters with fun exercises and audio.</p>
+    </div>
+    <div class="next-step">
+      <span class="ns-icon">🎯</span>
+      <h4>Your Personal Plan</h4>
+      <p>Based on your goals today, I'll prepare a custom roadmap just for you before next class.</p>
+    </div>
+  </div>
+
+  <div class="closing-footer reveal">
+    Taught with ❤️ by <span>Zolfikar</span> · Arabic Tutor on Preply
+  </div>
+</section>
+
+<script>
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+const sectionIds = ['cover','facts','interview','journey','demo','closing'];
+const dots = document.querySelectorAll('.nav-dot');
+const secObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const i = sectionIds.indexOf(e.target.id);
+      dots.forEach((d,j) => d.classList.toggle('active', i === j));
+    }
+  });
+}, { threshold: 0.4 });
+sectionIds.forEach(id => { const el = document.getElementById(id); if(el) secObserver.observe(el); });
+
+function goTo(id) { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' }); }
+</script>
+</body>
+</html>

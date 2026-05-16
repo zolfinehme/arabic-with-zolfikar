@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arabic Trial Class — with Zolfikar</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;700;800&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e17;
+    --surface: #1a1828;
+    --card: #232136;
+    --green: #00e58a;
+    --yellow: #ffd93d;
+    --red: #ff6b6b;
+    --blue: #4cc9f0;
+    --purple: #c77dff;
+    --orange: #ff9f43;
+    --text: #fffffe;
+    --muted: #a7a9be;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Baloo 2',cursive; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+
+  .screen { display:none; min-height:100vh; flex-direction:column; align-items:center; justify-content:center; padding:30px 20px; }
+  .screen.active { display:flex; }
+
+  /* INTRO */
+  #intro {
+    background: radial-gradient(ellipse at 30% 20%, #1e1b4b 0%, var(--bg) 60%),
+                radial-gradient(ellipse at 80% 80%, #0d2b1e 0%, transparent 50%);
+    text-align:center; gap:20px;
+  }
+  .intro-letter {
+    font-family:'Tajawal',sans-serif; font-size:120px; line-height:1;
+    background:linear-gradient(135deg,var(--green),var(--blue));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    animation:glow 2s ease-in-out infinite alternate;
+    filter:drop-shadow(0 0 40px rgba(0,229,138,0.3));
+  }
+  @keyframes glow {
+    from { filter:drop-shadow(0 0 20px rgba(0,229,138,0.2)); }
+    to   { filter:drop-shadow(0 0 60px rgba(0,229,138,0.5)); }
+  }
+  .intro-title { font-size:clamp(28px,6vw,52px); font-weight:800; line-height:1.1; }
+  .intro-title span { color:var(--green); }
+  .intro-sub { color:var(--muted); font-size:17px; max-width:420px; line-height:1.7; }
+  .section-pills { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin:10px 0; }
+  .pill { padding:8px 20px; border-radius:50px; font-weight:700; font-size:14px; }
+  .pill.green { background:rgba(0,229,138,0.15); border:2px solid var(--green); color:var(--green); }
+  .pill.blue  { background:rgba(76,201,240,0.15); border:2px solid var(--blue);  color:var(--blue);  }
+
+  /* NAME INPUT */
+  .name-wrap { display:flex; flex-direction:column; gap:10px; width:100%; max-width:360px; }
+  .name-label { font-size:14px; font-weight:700; color:var(--muted); text-align:center; }
+  .name-input {
+    background:var(--card); border:2px solid rgba(255,255,255,0.1); color:var(--text);
+    font-family:'Baloo 2',cursive; font-size:17px; font-weight:700;
+    padding:14px 20px; border-radius:14px; outline:none; text-align:center;
+    transition:border-color 0.2s;
+  }
+  .name-input:focus { border-color:var(--green); }
+  .name-input::placeholder { color:var(--muted); }
+
+  .big-btn {
+    background:linear-gradient(135deg,var(--green),#00b368);
+    color:#0f0e17; font-family:'Baloo 2',cursive; font-size:20px; font-weight:800;
+    padding:16px 52px; border:none; border-radius:50px; cursor:pointer;
+    box-shadow:0 8px 32px rgba(0,229,138,0.35);
+    transition:transform 0.2s, box-shadow 0.2s;
+  }
+  .big-btn:hover { transform:translateY(-3px) scale(1.03); box-shadow:0 14px 40px rgba(0,229,138,0.5); }
+  .big-btn:disabled { opacity:0.5; cursor:default; transform:none; }
+
+  /* GAME HEADER */
+  .game-header { width:100%; max-width:700px; display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
+  .game-label  { font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--muted); }
+  .score-badge { background:var(--card); border:2px solid var(--green); color:var(--green); font-weight:800; font-size:16px; padding:6px 20px; border-radius:50px; }
+  .progress-bar-wrap { width:100%; max-width:700px; height:8px; background:var(--card); border-radius:99px; margin-bottom:32px; overflow:hidden; }
+  .progress-bar { height:100%; background:linear-gradient(90deg,var(--green),var(--blue)); border-radius:99px; transition:width 0.4s ease; }
+
+  /* ALPHA GAME */
+  #alpha { background:radial-gradient(ellipse at 60% 10%, #1a1040 0%, var(--bg) 55%); gap:0; }
+  .question-label { font-size:15px; color:var(--muted); margin-bottom:12px; font-weight:600; text-align:center; }
+  .big-letter {
+    font-family:'Tajawal',sans-serif; font-size:clamp(100px,20vw,160px); line-height:1;
+    text-align:center; color:var(--text); background:var(--card);
+    border:3px solid rgba(255,255,255,0.08); border-radius:28px;
+    width:clamp(180px,35vw,260px); height:clamp(180px,35vw,260px);
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 32px;
+    box-shadow:0 12px 40px rgba(0,0,0,0.4);
+    animation:letterPop 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes letterPop { from{transform:scale(0.5) rotate(-10deg);opacity:0;} to{transform:scale(1) rotate(0deg);opacity:1;} }
+  .options-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; width:100%; max-width:500px; margin:0 auto 28px; }
+  .opt-btn {
+    background:var(--card); border:2px solid rgba(255,255,255,0.1); color:var(--text);
+    font-family:'Baloo 2',cursive; font-size:17px; font-weight:700;
+    padding:18px 12px; border-radius:16px; cursor:pointer;
+    transition:transform 0.15s, border-color 0.15s, background 0.15s; text-align:center;
+  }
+  .opt-btn:hover:not(:disabled) { transform:translateY(-2px); border-color:var(--blue); background:rgba(76,201,240,0.1); }
+  .opt-btn.correct { border-color:var(--green)!important; background:rgba(0,229,138,0.15)!important; color:var(--green)!important; }
+  .opt-btn.wrong   { border-color:var(--red)!important;   background:rgba(255,107,107,0.15)!important; color:var(--red)!important; }
+  .opt-btn:disabled { cursor:default; }
+  .feedback-msg { font-size:20px; font-weight:800; min-height:30px; text-align:center; transition:opacity 0.3s; }
+  .feedback-msg.correct { color:var(--green); }
+  .feedback-msg.wrong   { color:var(--red); }
+  .next-btn {
+    background:var(--surface); border:2px solid rgba(255,255,255,0.12); color:var(--text);
+    font-family:'Baloo 2',cursive; font-size:16px; font-weight:700;
+    padding:12px 36px; border-radius:50px; cursor:pointer; margin-top:16px;
+    transition:border-color 0.2s, background 0.2s; display:none;
+  }
+  .next-btn:hover { border-color:var(--green); background:rgba(0,229,138,0.08); }
+  .next-btn.visible { display:inline-block; }
+
+  /* WORD MATCH */
+  #match { background:radial-gradient(ellipse at 20% 80%, #1a0d2e 0%, var(--bg) 55%); gap:0; }
+  .match-instruction { font-size:15px; color:var(--muted); margin-bottom:24px; text-align:center; font-weight:600; }
+  .match-area { display:flex; gap:20px; width:100%; max-width:640px; justify-content:center; margin-bottom:24px; flex-wrap:wrap; }
+  .match-col { display:flex; flex-direction:column; gap:12px; flex:1; min-width:140px; max-width:240px; }
+  .match-item {
+    padding:16px 12px; border-radius:14px; text-align:center; font-weight:700; font-size:16px;
+    cursor:pointer; transition:transform 0.15s, box-shadow 0.15s;
+    border:2px solid rgba(255,255,255,0.08); background:var(--card); user-select:none;
+  }
+  .match-item.arabic-item { font-family:'Tajawal',sans-serif; font-size:26px; direction:rtl; }
+  .match-item:hover:not(.matched):not(.selected) { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,0.3); border-color:var(--purple); }
+  .match-item.selected { border-color:var(--yellow); background:rgba(255,217,61,0.12); color:var(--yellow); }
+  .match-item.matched  { border-color:var(--green);  background:rgba(0,229,138,0.12);  color:var(--green); cursor:default; }
+  .match-item.wrong-flash { border-color:var(--red); background:rgba(255,107,107,0.12); animation:shake 0.4s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-8px);} 75%{transform:translateX(8px);} }
+  .match-score-msg { font-size:18px; font-weight:800; color:var(--green); min-height:28px; text-align:center; }
+
+  /* TRANSITION */
+  #transition { background:var(--bg); text-align:center; gap:20px; }
+  .transition-icon { font-size:80px; }
+  .transition-title { font-size:clamp(26px,5vw,42px); font-weight:800; }
+  .transition-sub { color:var(--muted); font-size:16px; max-width:380px; line-height:1.7; }
+
+  /* RESULTS */
+  #results {
+    background:radial-gradient(ellipse at 50% 30%, #0d2b1e 0%, var(--bg) 60%);
+    text-align:center; gap:20px;
+  }
+  .trophy { font-size:90px; animation:bounce 1s ease infinite alternate; }
+  @keyframes bounce { from{transform:translateY(0) rotate(-5deg);} to{transform:translateY(-16px) rotate(5deg);} }
+  .results-title { font-size:clamp(32px,7vw,58px); font-weight:800; }
+  .results-title span { color:var(--green); }
+  .results-sub { color:var(--muted); font-size:17px; max-width:400px; line-height:1.7; }
+  .final-score { background:var(--card); border:3px solid var(--green); border-radius:24px; padding:24px 48px; font-size:20px; font-weight:700; }
+  .final-score .big-num { font-size:64px; font-weight:800; color:var(--green); display:block; line-height:1; }
+
+  .save-status {
+    font-size:14px; font-weight:700; padding:10px 24px; border-radius:50px;
+    margin-top:4px;
+  }
+  .save-status.saving  { color:var(--yellow); border:2px solid var(--yellow); background:rgba(255,217,61,0.1); }
+  .save-status.saved   { color:var(--green);  border:2px solid var(--green);  background:rgba(0,229,138,0.1); }
+  .save-status.error   { color:var(--red);    border:2px solid var(--red);    background:rgba(255,107,107,0.1); }
+
+  .wrong-summary {
+    background:var(--card); border:2px solid rgba(255,255,255,0.07);
+    border-radius:16px; padding:20px 28px;
+    max-width:400px; width:100%; text-align:left;
+  }
+  .wrong-summary h4 { font-size:14px; font-weight:700; color:var(--muted); margin-bottom:12px; text-transform:uppercase; letter-spacing:2px; }
+  .wrong-item { font-size:15px; color:var(--red); font-weight:700; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.05); }
+  .wrong-item:last-child { border-bottom:none; }
+  .wrong-item span { color:var(--muted); font-weight:400; margin-left:8px; font-size:13px; }
+
+  .restart-btn {
+    background:transparent; border:2px solid var(--muted); color:var(--muted);
+    font-family:'Baloo 2',cursive; font-size:16px; font-weight:700;
+    padding:12px 36px; border-radius:50px; cursor:pointer;
+    transition:border-color 0.2s, color 0.2s;
+  }
+  .restart-btn:hover { border-color:var(--text); color:var(--text); }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div class="screen active" id="intro">
+  <div class="intro-letter">ع</div>
+  <h1 class="intro-title">Welcome to<br><span>Arabic with Zolfikar!</span></h1>
+  <p class="intro-sub">Two fun exercises await — let's see how fast you pick up Arabic!</p>
+  <div class="section-pills">
+    <div class="pill green">📖 Part 1 — Alphabet</div>
+    <div class="pill blue">🔗 Part 2 — Word Match</div>
+  </div>
+  <div class="name-wrap">
+    <div class="name-label">Enter your name to get started 👇</div>
+    <input class="name-input" id="student-name" type="text" placeholder="Your name..." maxlength="40" />
+  </div>
+  <button class="big-btn" id="start-btn" onclick="startAlpha()" disabled>Let's Go! 🚀</button>
+</div>
+
+<!-- ALPHABET GAME -->
+<div class="screen" id="alpha">
+  <div class="game-header">
+    <span class="game-label">📖 Part 1 — Alphabet Recognition</span>
+    <span class="score-badge" id="alpha-score">⭐ 0</span>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="alpha-progress" style="width:0%"></div></div>
+  <p class="question-label" id="alpha-q-label">Question 1 of 8</p>
+  <div class="big-letter" id="alpha-letter">أ</div>
+  <div class="options-grid" id="alpha-options"></div>
+  <div class="feedback-msg" id="alpha-feedback"></div>
+  <button class="next-btn" id="alpha-next" onclick="nextAlpha()">Next →</button>
+</div>
+
+<!-- TRANSITION -->
+<div class="screen" id="transition">
+  <div class="transition-icon">🎉</div>
+  <h2 class="transition-title">Alphabet done!<br>Amazing work!</h2>
+  <p class="transition-sub">You just learned to recognise Arabic letters. Now let's match Arabic words to their meanings!</p>
+  <button class="big-btn" onclick="startMatch()">Part 2 — Word Match 🔗</button>
+</div>
+
+<!-- WORD MATCH -->
+<div class="screen" id="match">
+  <div class="game-header">
+    <span class="game-label">🔗 Part 2 — Word Match</span>
+    <span class="score-badge" id="match-score">⭐ 0</span>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="match-progress" style="width:0%"></div></div>
+  <p class="match-instruction">Tap an Arabic word, then tap its English meaning!</p>
+  <div class="match-area">
+    <div class="match-col" id="arabic-col"></div>
+    <div class="match-col" id="english-col"></div>
+  </div>
+  <div class="match-score-msg" id="match-msg"></div>
+  <button class="next-btn" id="match-next" onclick="nextMatchRound()">Next Round →</button>
+</div>
+
+<!-- RESULTS -->
+<div class="screen" id="results">
+  <div class="trophy">🏆</div>
+  <h2 class="results-title">You're a<br><span>Natural!</span></h2>
+  <p class="results-sub">Look at you — already recognising Arabic letters and matching words!</p>
+  <div class="final-score">
+    <span class="big-num" id="final-num">0</span>
+    points earned today
+  </div>
+  <div class="save-status saving" id="save-status">💾 Saving your results...</div>
+  <div class="wrong-summary" id="wrong-summary" style="display:none">
+    <h4>❌ Missed answers</h4>
+    <div id="wrong-list"></div>
+  </div>
+  <p class="results-sub">This is just a taste — real lessons go even deeper with games, exercises and conversation practice every session. 🌟</p>
+  <button class="restart-btn" onclick="restartAll()">← Try Again</button>
+</div>
+
+<script>
+// ── SUPABASE CONFIG ──
+const SUPABASE_URL = 'https://kjsaovbotthyucrkgsyx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_w-gkktwkB8vnaXt9y7BbNg_O82WYjYI';
+
+async function saveResult(studentName, totalScore, wrongAnswers) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/results`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        student_name: studentName,
+        total_score: totalScore,
+        wrong_answers: wrongAnswers
+      })
+    });
+    if (res.ok) {
+      document.getElementById('save-status').textContent = '✅ Results saved! Zolfikar can see your score.';
+      document.getElementById('save-status').className = 'save-status saved';
+    } else {
+      throw new Error('Save failed');
+    }
+  } catch(e) {
+    document.getElementById('save-status').textContent = '⚠️ Could not save results — check your connection.';
+    document.getElementById('save-status').className = 'save-status error';
+  }
+}
+
+// ── DATA ──
+const alphaData = [
+  { letter:'أ', correct:'Alef',  options:['Alef','Ba','Ta','Tha'] },
+  { letter:'ب', correct:'Ba',    options:['Alef','Ba','Jim','Dal'] },
+  { letter:'ت', correct:'Ta',    options:['Ta','Ba','Tha','Ra'] },
+  { letter:'ج', correct:'Jim',   options:['Ha','Jim','Kha','Sin'] },
+  { letter:'د', correct:'Dal',   options:['Dal','Zal','Ra','Zay'] },
+  { letter:'س', correct:'Sin',   options:['Shin','Sin','Sad','Dad'] },
+  { letter:'ع', correct:'Ain',   options:['Ghain','Ain','Fa','Qaf'] },
+  { letter:'م', correct:'Mim',   options:['Nun','Mim','Lam','Ha'] },
+];
+
+const matchRounds = [
+  [
+    { arabic:'مرحبا',  english:'Hello' },
+    { arabic:'شكراً', english:'Thank you' },
+    { arabic:'نعم',   english:'Yes' },
+    { arabic:'لا',    english:'No' },
+  ],
+  [
+    { arabic:'ماء',  english:'Water' },
+    { arabic:'خبز',  english:'Bread' },
+    { arabic:'بيت',  english:'House' },
+    { arabic:'كتاب', english:'Book' },
+  ],
+  [
+    { arabic:'أستاذ', english:'Teacher' },
+    { arabic:'طالب',  english:'Student' },
+    { arabic:'درس',   english:'Lesson' },
+    { arabic:'لغة',   english:'Language' },
+  ],
+];
+
+// ── STATE ──
+let studentName  = '';
+let alphaIndex   = 0;
+let alphaScore   = 0;
+let alphaAnswered= false;
+let matchRound   = 0;
+let matchScore   = 0;
+let matchSelected= null;
+let matchedCount = 0;
+let totalScore   = 0;
+let wrongAnswers = [];
+
+// ── NAME INPUT ──
+document.getElementById('student-name').addEventListener('input', function() {
+  document.getElementById('start-btn').disabled = this.value.trim().length < 2;
+});
+
+// ── UTILS ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+// ── ALPHA ──
+function startAlpha() {
+  studentName  = document.getElementById('student-name').value.trim();
+  alphaIndex   = 0; alphaScore = 0; alphaAnswered = false; wrongAnswers = [];
+  showScreen('alpha');
+  renderAlpha();
+}
+
+function renderAlpha() {
+  const q = alphaData[alphaIndex];
+  document.getElementById('alpha-letter').textContent = q.letter;
+  document.getElementById('alpha-q-label').textContent = `Question ${alphaIndex+1} of ${alphaData.length}`;
+  document.getElementById('alpha-score').textContent = `⭐ ${alphaScore}`;
+  document.getElementById('alpha-progress').style.width = `${(alphaIndex/alphaData.length)*100}%`;
+  document.getElementById('alpha-feedback').textContent = '';
+  document.getElementById('alpha-feedback').className = 'feedback-msg';
+  document.getElementById('alpha-next').classList.remove('visible');
+  alphaAnswered = false;
+
+  const el = document.getElementById('alpha-letter');
+  el.style.animation = 'none'; el.offsetHeight;
+  el.style.animation = 'letterPop 0.35s cubic-bezier(0.34,1.56,0.64,1)';
+
+  const grid = document.getElementById('alpha-options');
+  grid.innerHTML = '';
+  shuffle(q.options).forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = opt;
+    btn.onclick = () => pickAlpha(btn, opt, q.correct, q.letter);
+    grid.appendChild(btn);
+  });
+}
+
+function pickAlpha(btn, chosen, correct, letter) {
+  if (alphaAnswered) return;
+  alphaAnswered = true;
+  document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    alphaScore += 10;
+    document.getElementById('alpha-feedback').textContent = '✅ Correct! Well done!';
+    document.getElementById('alpha-feedback').className = 'feedback-msg correct';
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.opt-btn').forEach(b => { if(b.textContent===correct) b.classList.add('correct'); });
+    document.getElementById('alpha-feedback').textContent = `❌ It's "${correct}" — you'll get it next time!`;
+    document.getElementById('alpha-feedback').className = 'feedback-msg wrong';
+    wrongAnswers.push({ question: `Letter: ${letter}`, given: chosen, correct });
+  }
+  document.getElementById('alpha-score').textContent = `⭐ ${alphaScore}`;
+  document.getElementById('alpha-next').classList.add('visible');
+}
+
+function nextAlpha() {
+  alphaIndex++;
+  if (alphaIndex >= alphaData.length) { totalScore += alphaScore; showScreen('transition'); }
+  else renderAlpha();
+}
+
+// ── MATCH ──
+function startMatch() {
+  matchRound = 0; matchScore = 0;
+  showScreen('match');
+  renderMatch();
+}
+
+function renderMatch() {
+  matchSelected = null; matchedCount = 0;
+  document.getElementById('match-msg').textContent = '';
+  document.getElementById('match-next').classList.remove('visible');
+  document.getElementById('match-score').textContent = `⭐ ${matchScore}`;
+  document.getElementById('match-progress').style.width = `${(matchRound/matchRounds.length)*100}%`;
+
+  const pairs = shuffle(matchRounds[matchRound]);
+  const ac = document.getElementById('arabic-col');
+  const ec = document.getElementById('english-col');
+  ac.innerHTML = ''; ec.innerHTML = '';
+
+  shuffle(pairs).forEach(pair => {
+    const el = document.createElement('div');
+    el.className = 'match-item arabic-item';
+    el.textContent = pair.arabic;
+    el.dataset.key = pair.english;
+    el.dataset.type = 'arabic';
+    el.onclick = () => selectMatch(el);
+    ac.appendChild(el);
+  });
+  shuffle(pairs).forEach(pair => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = pair.english;
+    el.dataset.key = pair.english;
+    el.dataset.type = 'english';
+    el.onclick = () => selectMatch(el);
+    ec.appendChild(el);
+  });
+}
+
+function selectMatch(el) {
+  if (el.classList.contains('matched')) return;
+  if (!matchSelected) {
+    el.classList.add('selected');
+    matchSelected = { type:el.dataset.type, key:el.dataset.key, el };
+    return;
+  }
+  if (matchSelected.type === el.dataset.type) {
+    matchSelected.el.classList.remove('selected');
+    el.classList.add('selected');
+    matchSelected = { type:el.dataset.type, key:el.dataset.key, el };
+    return;
+  }
+  if (matchSelected.key === el.dataset.key) {
+    el.classList.add('matched');
+    matchSelected.el.classList.remove('selected');
+    matchSelected.el.classList.add('matched');
+    matchScore += 15;
+    matchedCount++;
+    document.getElementById('match-score').textContent = `⭐ ${matchScore}`;
+    matchSelected = null;
+    if (matchedCount === matchRounds[matchRound].length) {
+      document.getElementById('match-msg').textContent = '🎉 Round complete! Perfect matching!';
+      setTimeout(() => {
+        if (matchRound + 1 < matchRounds.length) {
+          document.getElementById('match-next').classList.add('visible');
+        } else {
+          totalScore += matchScore;
+          showResults();
+        }
+      }, 600);
+    }
+  } else {
+    // Track wrong match attempts
+    const arabicEl  = matchSelected.type === 'arabic'  ? matchSelected.el : el;
+    const englishEl = matchSelected.type === 'english' ? matchSelected.el : el;
+    wrongAnswers.push({
+      question: `Word match: ${arabicEl.textContent}`,
+      given: englishEl.textContent,
+      correct: matchSelected.key
+    });
+    el.classList.add('wrong-flash');
+    matchSelected.el.classList.add('wrong-flash');
+    const prev = matchSelected.el;
+    matchSelected = null;
+    setTimeout(() => {
+      el.classList.remove('wrong-flash','selected');
+      prev.classList.remove('wrong-flash','selected');
+    }, 500);
+  }
+}
+
+function nextMatchRound() {
+  matchRound++;
+  document.getElementById('match-next').classList.remove('visible');
+  renderMatch();
+}
+
+// ── RESULTS ──
+function showResults() {
+  showScreen('results');
+  document.getElementById('final-num').textContent = totalScore;
+
+  // Show wrong answers summary
+  if (wrongAnswers.length > 0) {
+    const summary = document.getElementById('wrong-summary');
+    const list    = document.getElementById('wrong-list');
+    summary.style.display = 'block';
+    list.innerHTML = wrongAnswers.map(w =>
+      `<div class="wrong-item">${w.question} <span>→ correct: ${w.correct}</span></div>`
+    ).join('');
+  }
+
+  // Save to Supabase
+  saveResult(studentName, totalScore, wrongAnswers);
+}
+
+function restartAll() {
+  totalScore = 0; alphaScore = 0; matchScore = 0; wrongAnswers = [];
+  document.getElementById('student-name').value = '';
+  document.getElementById('start-btn').disabled = true;
+  showScreen('intro');
+}
+</script>
+</body>
+</html>
